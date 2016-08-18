@@ -17,7 +17,7 @@ class CreateTodoTable extends Migration
             $table->string('description', 100);
             $table->boolean('is_done');
             $table->integer('owner_id');
-            $table->timestamp('created_at');
+            $table->timestamps();
         });
     }
 

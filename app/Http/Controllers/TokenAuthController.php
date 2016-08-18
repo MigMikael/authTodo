@@ -9,43 +9,55 @@ use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\User;
+use Log;
 
 class TokenAuthController extends Controller
 {
+    public function __construct()
+    {
+        //$this->middleware('cors');
+    }
+
     public function authenticate(Request $request)
     {
+        Log::info('#### Authenticate');
+        // grab credentials from the request
         $credentials = $request->only('email', 'password');
-
         try {
-            if(! $token = JWTAuth::attempt($credentials)) {
+            // attempt to verify the credentials and create a token for the user
+            if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'invalid_credentials'], 401);
             }
         } catch (JWTException $e) {
+            // something went wrong whilst attempting to encode the token
+
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
-
+        // all good so return the token
         return response()->json(compact('token'));
     }
 
     public function getAuthenticatedUser()
     {
+        Log::info('#### get Authenticated User');
         try {
-            if(! $user = JWTAuth::praseToken()->authenticate()) {
+            if (! $user = JWTAuth::parseToken()->authenticate()) {
                 return response()->json(['user_not_found'], 404);
             }
-        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+        } catch (TokenExpiredException $e) {
             return response()->json(['token_expired'], $e->getStatusCode());
-        } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+        } catch (TokenInvalidException $e) {
             return response()->json(['token_invalid'], $e->getStatusCode());
-        } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+        } catch (JWTException $e) {
             return response()->json(['token_absent'], $e->getStatusCode());
         }
-
+        // the token is valid and we have found the user via the sub claim
         return response()->json(compact('user'));
     }
 
     public function register(Request $request)
     {
+        Log::info('#### Register');
         $newUser = $request->all();
         $password = Hash::make($request->input('password'));
         $newUser['password'] = $password;

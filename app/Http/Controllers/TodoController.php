@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Log;
 
 class TodoController extends Controller
 {
@@ -17,6 +18,7 @@ class TodoController extends Controller
 
     public function index()
     {
+        Log::info('#### Todo | index');
         $user = JWTAuth::parseToken()->authenticate();
         $todos = Todo::where('owner_id', $user->id)->get();
         return $todos;
@@ -24,6 +26,7 @@ class TodoController extends Controller
 
     public function store(Request $request)
     {
+        Log::info('#### Todo | store');
         $user = JWTAuth::parseToken()->authenticate();
         $newTodo = $request->all();
         $newTodo['owner_id'] = $user->id;
@@ -32,6 +35,7 @@ class TodoController extends Controller
 
     public function update(Request $request, $id)
     {
+        Log::info('#### Todo | update');
         $user = JWTAuth::parseToken()->authenticate();
         $todo = Todo::where('owner_id', $user->id)->where('id', $id)->first();
 
@@ -46,6 +50,7 @@ class TodoController extends Controller
 
     public function destroy($id)
     {
+        Log::info('#### Todo | destroy');
         $user = JWTAuth::parseToken()->authenticate();
         $todo = Todo::where('owner_id', $user->id)->where('id', $id)->first();
 
