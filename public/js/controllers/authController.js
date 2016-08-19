@@ -25,8 +25,11 @@ app.controller('AuthController',  function($auth, $state,$http,$rootScope, $scop
             $scope.loginErrorText = error.data.error;
 
         }).then(function(response) {
-            $localStorage = response.data.user;
+            $localStorage.user = response.data.user;
             $rootScope.currentUser = response.data.user;
+
+
+
 
             $scope.loginError = false;
             $scope.loginErrorText = '';

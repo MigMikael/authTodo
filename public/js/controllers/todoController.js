@@ -1,11 +1,12 @@
 /**
  * Created by thanadej on 8/16/2016 AD.
  */
-app.controller('TodoController',  function($state,$http,$rootScope, $scope,$auth) {
+app.controller('TodoController',  function($state,$http,$rootScope, $scope,$auth,$localStorage) {
 
     $scope.todos=[];
     $scope.newTodo={};
-
+    $scope.user = $localStorage.user;
+    console.log($scope.user);
     $scope.init = function (){
 
         $http.get('/api/todo').success(function(data){
