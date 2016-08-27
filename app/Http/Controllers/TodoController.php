@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CheckToken;
 use App\Todo;
 use Illuminate\Http\Request;
 
@@ -11,6 +12,8 @@ use Log;
 
 class TodoController extends Controller
 {
+    protected $expiredTime = 5;
+
     public function __construct()
     {
         $this->middleware('jwt.auth'/*, ['except' => ['index']]*/);
@@ -19,28 +22,14 @@ class TodoController extends Controller
     public function index()
     {
         $payload = JWTAuth::getPayload();
-        //$tokenExpireTime = $payload['exp'];
-        $tokeniat = $payload['iat'];
-        $currentTime = time();
-
-        /*Log::info('#### Todo | index | Token Expire Time '.date("Y-m-d H:i:s", $tokenExpireTime));
-        Log::info('#### Todo | index | The Current Time '.Carbon::now());*/
-
-        //Log::info('#### Todo | index | Token Expire Time '.$tokenExpireTime);
-        Log::info('#### Todo | index | Token iat '.$tokeniat);
-        Log::info('#### Todo | index | The Current Time '.$currentTime);
-
-        $time = ($currentTime - $tokeniat)/60;
-        Log::info('#### Todo | index | Difference Time '.$time);
-        if($time < 5){
-            Log::info('#### Token is valid');
-            $user = JWTAuth::parseToken()->authenticate();
-            $todos = Todo::where('owner_id', $user->id)->get();
-            return $todos;
-        }else{
-            Log::info('#### Token is expired');
+        $expired = CheckToken::isExpired($payload, $this->expiredTime);
+        if ($expired){
             return response()->json(['token_expired']);
         }
+
+        $user = JWTAuth::parseToken()->authenticate();
+        $todos = Todo::where('owner_id', $user->id)->get();
+        return $todos;
     }
 
     public function store(Request $request)
