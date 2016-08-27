@@ -28,9 +28,6 @@ app.controller('AuthController',  function($auth, $state,$http,$rootScope, $scop
             $localStorage.user = response.data.user;
             $rootScope.currentUser = response.data.user;
 
-
-
-
             $scope.loginError = false;
             $scope.loginErrorText = '';
 

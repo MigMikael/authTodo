@@ -33,6 +33,7 @@ app.controller('TodoController',  function($state,$http,$rootScope, $scope,$auth
 
     $scope.logout = function() {
         $auth.logout().then(function() {
+            $localStorage.user = null;
             $rootScope.currentUser = null;
         });
     }

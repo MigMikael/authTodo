@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\User;
 use Log;
@@ -28,12 +30,15 @@ class TokenAuthController extends Controller
             if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'invalid_credentials'], 401);
             }
+        } catch (TokenExpiredException $e) {
+            return response()->json(['token_expired'], $e->getStatusCode());
+
         } catch (JWTException $e) {
             // something went wrong whilst attempting to encode the token
-
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
         // all good so return the token
+        Log::info('#### Token is '.$token);
         return response()->json(compact('token'));
     }
 
